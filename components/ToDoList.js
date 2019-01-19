@@ -7,7 +7,7 @@ import momentLocalizer from 'react-widgets-moment';
 import isEmpty from "lodash.isempty";
 import findIndex from "lodash.findindex";
 import cloneDeep  from "lodash.clonedeep";
-
+import update from 'immutability-helper';
 
 
 // Add the css styles...
@@ -16,10 +16,13 @@ import cloneDeep  from "lodash.clonedeep";
 
 import classNames from "classnames";
 
+
+import EditForm from "./EditForm";
+
 class ToDoList extends React.Component {
     constructor(props) {
         super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        /*this.handleSubmit = this.handleSubmit.bind(this);*/
 
 
         //this.handleChange = this.handleChange.bind(this);
@@ -34,20 +37,19 @@ class ToDoList extends React.Component {
                 id: "",
                 updated: new Date(),
                 summary: "",
-                organizer: {
-                    email: ""
-                },
+                organizerEmail: "",
                 status: "",
-                start: {
-                    dateTime: new Date()
-                }
+                startDateTime: new Date(),
+                requestStatus: "",
+                label: "",
+                newItem: false
             }
         }
 
     }
 
 
-    handleSubmit(e) {
+    /*handleSubmit(e) {
 
         function checkStatus(response) {
             if (response.status >= 200 && response.status < 300) {
@@ -108,13 +110,13 @@ class ToDoList extends React.Component {
 
                 }.bind(this))
 
-    }
+    }*/
 
     //handleChange(e){}
 
-    setField (e) {
+    /*setField (e) {
         this.setState({[e.target.name]: e.target.value})
-    }
+    }*/
 
     async loadItemDetails(id){
         //updating the state
@@ -158,7 +160,20 @@ class ToDoList extends React.Component {
 
 
     async deleteItem(id){
+        //updating the state
+        this.setState((state) => ({
+            requestStatus: 'requesting'
+        }));
+
         try {
+            const res = await fetch('/api/v1/to-do-item/' +id, {
+                method: 'DELETE'
+            });
+
+            const json = await res.json();
+
+            console.log(json);
+
             /*const res = await fetch('/api/v1/to-do-item', {
                 method: 'DELETE',
                 headers: {'Content-Type': 'application/json'},
@@ -169,57 +184,108 @@ class ToDoList extends React.Component {
 
             console.log(json);*/
 
-            const index = findIndex(this.state.items, { id: id});
-
-            if (index >= 0) {
-                const items = cloneDeep(this.state.items); //create a copy of state
-
-                items.splice(index, 1);
-
-                //not good
-                //this.setState({ items });
-
-                //updating the state
-                this.setState((state) => ({
-                    items: items
-                }));
-            }
+            //updating the state
+            this.setState((state) => ({
+                items: items,
+                requestStatus: 'done'
+            }));
 
         } catch (error) {
+            //updating the state
+            this.setState((state) => ({
+                requestStatus: 'error'
+            }));
             console.error(error);
         }
     }
 
 
-    switchToEditMode(id){
+    switchToEditMode(id) {
+        if (id) {
+            const index = findIndex(this.state.items, {id: id});
 
-        const index = findIndex(this.state.items, { id: id});
+            if (index >= 0) {
+                //const items = cloneDeep(this.state.items); //create a copy of state
 
-        if (index >= 0) {
-            //const items = cloneDeep(this.state.items); //create a copy of state
-
-            console.log( this.state.items[index].itemDetails );
+                console.log(this.state.items[index].itemDetails);
 
 
-            //const items = cloneDeep(this.state.items); //create a copy of state
+                //const items = cloneDeep(this.state.items); //create a copy of state
 
-            //const dataToEdit = {}
+                //const dataToEdit = {}
+
+
+                const itemToEdit = {
+                    created: this.state.items[index].itemDetails.created,
+                    id: this.state.items[index].itemDetails.id,
+                    updated: this.state.items[index].itemDetails.updated,
+                    summary: this.state.items[index].itemDetails.summary,
+                    organizerEmail: this.state.items[index].itemDetails.organizer.email,
+                    status: this.state.items[index].itemDetails.status,
+                    startDateTime: this.state.items[index].itemDetails.start.dateTime,
+                    requestStatus: "",
+                    label: "Edit todo item",
+                    newItem: false
+                }
+
+
+                //updating the state
+                //changing show ro edit mode or edit to show mode
+                this.setState((state) => ({
+                    editMode: !state.editMode,
+                    itemToEdit: itemToEdit
+                    //itemToEdit: this.state.items[index].itemDetails
+                }));
+            }
+        } else {
+            const itemToEdit = {
+                created: new Date(),
+                id: "",
+                updated: new Date(),
+                summary: "",
+                organizerEmail: "",
+                status: "",
+                startDateTime: new Date(),
+                requestStatus: "",
+                label: "Create new todo item",
+                newItem: true
+            }
 
             //updating the state
             //changing show ro edit mode or edit to show mode
             this.setState((state) => ({
                 editMode: !state.editMode,
-                itemToEdit: this.state.items[index].itemDetails
+                itemToEdit: itemToEdit
             }));
-
 
         }
 
-
-
-
-        console.log(id);
     }
+
+    switchToShowMode(){
+        this.setState(() => ({
+            editMode: false
+        }));
+    }
+
+    updateItemToEdit = (e) => {
+        console.log({[e.target.name]: e.target.value});
+
+        const newState = update(this.state, {
+            itemToEdit: {[e.target.name]: {$set: e.target.value} }
+        });
+
+        this.setState(() => (newState));
+    }
+
+
+    /*setRequestStatus = (status) => {
+        const newState = update(this.state, {
+            itemToEdit: {requestStatus: {$set: status} }
+        });
+
+        this.setState(() => (newState));
+    }*/
 
     //update itemToEdit created state when a new moment set via datetime-picker
     /*createdOnChange = date => this.setState({ date });*/
@@ -272,6 +338,7 @@ class ToDoList extends React.Component {
 
         const itemToEdit = this.state.itemToEdit;
 
+        /*
         const editForm = (
             <form onSubmit={this.handleSubmit} onChange={this.setField} className="form-inline">
                 <div className="form-group m-2">
@@ -281,7 +348,7 @@ class ToDoList extends React.Component {
 
                 <div className="form-group m-2">
                     <label htmlFor="updated">Updated:</label>
-                    {/*<input type="text" id="updated" className="form-control mx-sm-3" value={Moment(itemToEdit.updated).format('Do MMM YYYY, h:mm:ss a')} />*/}
+                    {/!*<input type="text" id="updated" className="form-control mx-sm-3" value={Moment(itemToEdit.updated).format('Do MMM YYYY, h:mm:ss a')} />*!/}
                     <div className="mx-sm-3">{Moment(itemToEdit.updated).format('Do MMM YYYY, h:mm:ss a')}</div>
                 </div>
 
@@ -292,7 +359,7 @@ class ToDoList extends React.Component {
 
                 <div className="form-group m-2">
                     <label htmlFor="updated">Organizer email:</label>
-                    <input type="text" name="email" className="form-control mx-sm-3" value={itemToEdit.organizer.email} />
+                    <input type="text" name="email" className="form-control mx-sm-3" value={itemToEdit.organizerEmail} />
                 </div>
 
                 <div className="form-group m-2">
@@ -302,22 +369,23 @@ class ToDoList extends React.Component {
 
                 <div className="form-group m-2">
                     <label htmlFor="start">Start:</label>
-                    <input type="text" name="start.dateTime" className="form-control mx-sm-3" value={Moment(itemToEdit.start.dateTime).format('Do MMM YYYY, h:mm:ss a')} />
-                    {/*<DateTimePicker
+                    <input type="text" name="start.dateTime" className="form-control mx-sm-3" value={Moment(itemToEdit.startDateTime).format('Do MMM YYYY, h:mm:ss a')} />
+                    {/!*<DateTimePicker
                         onChange={}
                         value={itemToEdit.start.dateTime}
-                    />*/}
+                    />*!/}
                 </div>
 
                 <button type="submit" className="btn btn-primary m-2">Save</button>
 
             </form>
-        );
+        );*/
 
         momentLocalizer();
 
         return(
             <div className="container">
+                <button type="button" className="btn btn-secondary m-2" onClick={() => this.switchToEditMode(false)}>Create new todo item</button>
                 <div className="row">
                     <div className={leftColumnClass}>
                         <ul className="list-group">
@@ -326,7 +394,12 @@ class ToDoList extends React.Component {
                     </div>
 
                     <div className={rightColumnClass}>
-                        {editForm}
+                       {/* {editForm}*/}
+
+                        {/*<EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} setRequestStatus={this.setRequestStatus} />*/}
+
+                        <h2>{itemToEdit.label}</h2>
+                        <EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} />
                     </div>
 
                 </div>

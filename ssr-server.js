@@ -8,11 +8,15 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
+const bodyParser = require('body-parser');
+
 app.prepare()
     .then(() => {
         const server = express();
 
 
+
+        server.use(bodyParser.json());
         //API
         const routes = require('./api/v1/routes');
         server.use('/api/v1', routes);
