@@ -1,50 +1,44 @@
-/**
- * Created by Igor on 12/13/2018.
- */
-
 module.exports = {
 
     to_do_item_get : function(req, res){
 
-        var config = require('config');
+        const config = require('config');
         const {google} = require('googleapis');
         const calendar = google.calendar('v3');
-        var oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id, //client ID
-            //"1043071528710-n2phgsri3kv404jk2gbidq7td9pfms3p.apps.googleusercontent.com", //client ID
-
-            config.googleAuthOAuth2.client_secret //client secret
-            //"ijrtYotMhRLC65l3w54nEkgi" //client secret
+        let oauth2Client = new google.auth.OAuth2(
+            config.googleAuthOAuth2.client_id,
+            config.googleAuthOAuth2.client_secret
         );
         oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token //refresh token
-            //refresh_token: "1/9NGvFU4dWPwlf0QuQ_7eSnmbLntUEHz1uooRFbSGX84", //refresh token
-
+            refresh_token: config.googleAuthOAuth2.refresh_token
             // access_token: "#####" // If you want to use access token, please use this.
         });
 
         async function getToDoItemDetails(eventId) {
             try {
-                const gcRes = await calendar.events.get({
+                let gcRes = await calendar.events.get({
                     auth: oauth2Client,
                     calendarId: 'primary',
                     eventId: eventId
                 });
-                console.log(gcRes.data);
+
+                /*console.log(gcRes.data);
+                if ('location' in gcRes === false) {
+                    gcRes.location = "11111111111111111111";
+                }
+                console.log(gcRes.data);*/
 
                 //todo what data do I have to have in a response?
                 res.status(201).json({itemDetails: gcRes.data});
 
             } catch (error) {
-                console.log(error);
                 res.status(500).json({error: error})
             }
         }
 
         const id = req.query.id;
-        //const {id} = req.query;
 
-        getToDoItemDetails(id); //'2nu0d21cibmfkq05agsfc71mpd'
+        getToDoItemDetails(id);
     },
 
     to_do_item_delete: function(req, res){
@@ -56,18 +50,15 @@ module.exports = {
 
     to_do_item_create: function(req, res){
 
-        console.log('POST req received');
-        console.log(req.body);
-
-        var config = require('config');
+        const config = require('config');
         const {google} = require('googleapis');
         const calendar = google.calendar('v3');
-        var oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id, //client ID
-            config.googleAuthOAuth2.client_secret //client secret
+        let oauth2Client = new google.auth.OAuth2(
+            config.googleAuthOAuth2.client_id,
+            config.googleAuthOAuth2.client_secret
         );
         oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token //refresh token
+            refresh_token: config.googleAuthOAuth2.refresh_token
         });
 
         async function createToDoItem(event) {
@@ -100,7 +91,7 @@ module.exports = {
          // newItem: true
 
 
-        var summary = req.body.summary
+        var summary = req.body.summary;
 
         var event = {
             'summary': summary,
@@ -112,7 +103,7 @@ module.exports = {
             },
             'end': {
                 'dateTime': '2019-01-28T17:00:00-07:00',
-                'timeZone': 'America/Los_Angeles',
+                'timeZone': 'Asia/Hong_Kong',
             },
             'recurrence': [
                 'RRULE:FREQ=DAILY;COUNT=2'
@@ -132,12 +123,6 @@ module.exports = {
 
         createToDoItem(event);
 
-
-
-
-
-
-
         res.status(201).end();
     },
 
@@ -150,3 +135,4 @@ module.exports = {
 
 
 };
+

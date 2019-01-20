@@ -1,6 +1,3 @@
-/**
- * Created by Igor on 12/13/2018.
- */
 const express = require('express');
 const next = require('next');
 
@@ -14,15 +11,10 @@ app.prepare()
     .then(() => {
         const server = express();
 
-
-
         server.use(bodyParser.json());
-        //API
+
         const routes = require('./api/v1/routes');
         server.use('/api/v1', routes);
-
-
-
 
         server.get('*', (req, res) => {
             return handle(req, res)

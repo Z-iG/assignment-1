@@ -15,22 +15,7 @@ describe('<Index />', () => {
         expect(Index).toBeDefined()
     });
 
-    // it('should render', () => {
-    //   const wrapper = shallow(<Index />)
-    //     expect(shallowToJson(wrapper)).toMatchSnapshot()
-    // })
-
     let wrapper;
-
-    // it('should get InitialProps', () => {
-    //
-    //
-    //      beforeEach(async () => {
-    //          const props = await Index.getInitialProps();
-    //          wrapper = shallow(<Index {...props} />);
-    //      })
-    // })
-
 
     beforeEach( () => {
 
@@ -61,14 +46,3 @@ describe('<Index />', () => {
 
 
 });
-
-//describe('<Index/> ')
-
-
-
-//working with async data
-// test('List of todo items should be a json object', async () => {
-//     expect.assertions(1);
-//     const data = await index.props.getInitialProps();
-//         expect(data).isObject;
-// });

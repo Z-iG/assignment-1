@@ -7,7 +7,7 @@ npm run build
 
 To run the application -> npm run start
 
-To run tests- > npm run test
+To run tests -> npm run test
 
 npm run export
 

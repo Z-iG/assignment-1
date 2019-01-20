@@ -1,31 +1,15 @@
-/**
- * Created by Igor on 12/13/2018.
- */
-
 import Moment from "moment";
 import momentLocalizer from 'react-widgets-moment';
 import isEmpty from "lodash.isempty";
 import findIndex from "lodash.findindex";
 import cloneDeep  from "lodash.clonedeep";
 import update from 'immutability-helper';
-
-
-// Add the css styles...
-//import '../node_modules/react-widgets/dist/css/react-widgets.css';
-//import DateTimePicker from 'react-widgets/lib/DateTimePicker';
-
 import classNames from "classnames";
-
-
 import EditForm from "./EditForm";
 
 class ToDoList extends React.Component {
     constructor(props) {
         super(props);
-        /*this.handleSubmit = this.handleSubmit.bind(this);*/
-
-
-        //this.handleChange = this.handleChange.bind(this);
 
         this.state = {
             items: this.props.items,
@@ -33,13 +17,16 @@ class ToDoList extends React.Component {
             editMode: false,
             requestStatus: "",
             itemToEdit: {
-                created: new Date(),
+                created: "",
                 id: "",
-                updated: new Date(),
+                updated: "",
                 summary: "",
-                organizerEmail: "",
-                status: "",
-                startDateTime: new Date(),
+
+                location: "",
+
+                startDateTime: "",
+                endDateTime: "",
+
                 requestStatus: "",
                 label: "",
                 newItem: false
@@ -48,78 +35,8 @@ class ToDoList extends React.Component {
 
     }
 
-
-    /*handleSubmit(e) {
-
-        function checkStatus(response) {
-            if (response.status >= 200 && response.status < 300) {
-            //if(response.ok)
-                return response
-
-            } else {
-                let error = new Error(response.statusText);
-                error.response = response;
-
-                throw error
-            }
-        }
-
-        function parseJSON(response) {
-            return response.json()
-        }
-
-        e.preventDefault();
-        //const data = e.target;//state.itemsTodit
-
-        const data = this.state.itemToEdit;
-
-        console.log('data');
-        console.log(data);
-
-
-        //updating the state
-        this.setState(() => ({
-            requestStatus: "requesting"
-        }));
-
-            fetch('/api/form-submit-url', {
-                method: 'POST',
-                body: data
-            })
-                .then(checkStatus)
-                .then(parseJSON)
-
-                .then(function (data) {
-
-                    //updating the state
-                    this.setState((prevState) => ({
-                        //items: items,
-                        requestStatus: 'done'
-                    }));
-
-                    console.log('request succeeded with JSON response', data)
-                }.bind(this))
-
-                .catch(function (error) {
-                    //updating the state
-                    this.setState(() => ({
-                        requestStatus: "error"
-                    }));
-
-                    //console.log('request failed', error)
-
-                }.bind(this))
-
-    }*/
-
-    //handleChange(e){}
-
-    /*setField (e) {
-        this.setState({[e.target.name]: e.target.value})
-    }*/
-
     async loadItemDetails(id){
-        //updating the state
+        //updating the state with ajax request status
         this.setState((state) => ({
             requestStatus: 'requesting'
         }));
@@ -129,8 +46,6 @@ class ToDoList extends React.Component {
             const res = await fetch('/api/v1/to-do-item?id=' + id );
             const json = await res.json();
 
-            console.log(json);
-
             const index = findIndex(this.state.items, { id: id});
 
             if (index >= 0) {
@@ -138,10 +53,10 @@ class ToDoList extends React.Component {
 
                 items[index].itemDetails = json.itemDetails;
 
-                //not good
-                //this.setState({ items });
+                //console.log(json.itemDetails);
+                //console.log(json.itemDetails.extendedProperties);
 
-                //updating the state
+                //updating the state with ajax request status
                 this.setState((state) => ({
                     items: items,
                     requestStatus: 'done'
@@ -150,17 +65,18 @@ class ToDoList extends React.Component {
             }
 
         } catch (error) {
-            //updating the state
+            //updating the state with ajax request status
             this.setState((state) => ({
                 requestStatus: 'error'
             }));
+
             console.error(error);
         }
     }
 
 
     async deleteItem(id){
-        //updating the state
+        //updating the state with ajax request status
         this.setState((state) => ({
             requestStatus: 'requesting'
         }));
@@ -184,14 +100,14 @@ class ToDoList extends React.Component {
 
             console.log(json);*/
 
-            //updating the state
+            //updating the state with ajax request status
             this.setState((state) => ({
                 items: items,
                 requestStatus: 'done'
             }));
 
         } catch (error) {
-            //updating the state
+            //updating the state with ajax request status
             this.setState((state) => ({
                 requestStatus: 'error'
             }));
@@ -205,28 +121,19 @@ class ToDoList extends React.Component {
             const index = findIndex(this.state.items, {id: id});
 
             if (index >= 0) {
-                //const items = cloneDeep(this.state.items); //create a copy of state
-
-                console.log(this.state.items[index].itemDetails);
-
-
-                //const items = cloneDeep(this.state.items); //create a copy of state
-
-                //const dataToEdit = {}
-
 
                 const itemToEdit = {
                     created: this.state.items[index].itemDetails.created,
                     id: this.state.items[index].itemDetails.id,
                     updated: this.state.items[index].itemDetails.updated,
                     summary: this.state.items[index].itemDetails.summary,
-                    organizerEmail: this.state.items[index].itemDetails.organizer.email,
-                    status: this.state.items[index].itemDetails.status,
+                    location: this.state.items[index].itemDetails.location,
                     startDateTime: this.state.items[index].itemDetails.start.dateTime,
+                    endDateTime: this.state.items[index].itemDetails.end.dateTime,
                     requestStatus: "",
                     label: "Edit todo item",
                     newItem: false
-                }
+                };
 
 
                 //updating the state
@@ -234,22 +141,25 @@ class ToDoList extends React.Component {
                 this.setState((state) => ({
                     editMode: !state.editMode,
                     itemToEdit: itemToEdit
-                    //itemToEdit: this.state.items[index].itemDetails
                 }));
             }
         } else {
+            const d = new Date();
+
             const itemToEdit = {
-                created: new Date(),
+                created: d.toISOString(),
                 id: "",
-                updated: new Date(),
+                updated: d.toISOString(),
                 summary: "",
-                organizerEmail: "",
-                status: "",
-                startDateTime: new Date(),
+
+                startDateTime: d.toISOString(),
+                endDateTime: d.toISOString(),
+
+
                 requestStatus: "",
                 label: "Create new todo item",
                 newItem: true
-            }
+            };
 
             //updating the state
             //changing show ro edit mode or edit to show mode
@@ -269,27 +179,12 @@ class ToDoList extends React.Component {
     }
 
     updateItemToEdit = (e) => {
-        console.log({[e.target.name]: e.target.value});
-
         const newState = update(this.state, {
             itemToEdit: {[e.target.name]: {$set: e.target.value} }
         });
 
         this.setState(() => (newState));
-    }
-
-
-    /*setRequestStatus = (status) => {
-        const newState = update(this.state, {
-            itemToEdit: {requestStatus: {$set: status} }
-        });
-
-        this.setState(() => (newState));
-    }*/
-
-    //update itemToEdit created state when a new moment set via datetime-picker
-    /*createdOnChange = date => this.setState({ date });*/
-
+    };
 
     render(){
 
@@ -320,12 +215,15 @@ class ToDoList extends React.Component {
 
                     { details && <div>
                         <div className="m-2">
-                            <div>Creation date: {Moment(item.itemDetails.created).format('Do MMM YYYY, h:mm:ss a')}</div>
-                            <div>Updated: {Moment(item.itemDetails.updated).format('Do MMM YYYY, h:mm:ss a')}</div>
+
                             <div>Summary: {item.itemDetails.summary}</div>
-                            <div>Organizer email: {item.itemDetails.organizer.email}</div>
-                            <div>Status: {item.itemDetails.status}</div>
-                            <div>Start: {Moment(item.itemDetails.start.dateTime).format('Do MMM YYYY, h:mm:ss a')}</div>
+                            <div>Location: {item.itemDetails.location}</div>
+
+                            <div>Start: {item.itemDetails.start.dateTime}</div>
+                            <div>End: {item.itemDetails.end.dateTime}</div>
+
+                            <div className="mt-3">Creation date: {Moment(item.itemDetails.created).format('Do MMM YYYY, h:mm:ss a')}</div>
+                            <div>Updated: {Moment(item.itemDetails.updated).format('Do MMM YYYY, h:mm:ss a')}</div>
                         </div>
                         <button type="button" className="btn btn-secondary m-2" onClick={() => this.switchToEditMode(item.id)}>Edit</button>
                     </div>}
@@ -334,52 +232,7 @@ class ToDoList extends React.Component {
             )
         });
 
-
-
         const itemToEdit = this.state.itemToEdit;
-
-        /*
-        const editForm = (
-            <form onSubmit={this.handleSubmit} onChange={this.setField} className="form-inline">
-                <div className="form-group m-2">
-                    <label htmlFor="created">Creation date:</label>
-                    <div className="mx-sm-3">{Moment(itemToEdit.created).format('Do MMM YYYY, h:mm:ss a')}</div>
-                </div>
-
-                <div className="form-group m-2">
-                    <label htmlFor="updated">Updated:</label>
-                    {/!*<input type="text" id="updated" className="form-control mx-sm-3" value={Moment(itemToEdit.updated).format('Do MMM YYYY, h:mm:ss a')} />*!/}
-                    <div className="mx-sm-3">{Moment(itemToEdit.updated).format('Do MMM YYYY, h:mm:ss a')}</div>
-                </div>
-
-                <div className="form-group m-2">
-                    <label htmlFor="updated">Summary:</label>
-                    <input type="text" name="itemToEdit.summary" className="form-control mx-sm-3" value={itemToEdit.summary} />
-                </div>
-
-                <div className="form-group m-2">
-                    <label htmlFor="updated">Organizer email:</label>
-                    <input type="text" name="email" className="form-control mx-sm-3" value={itemToEdit.organizerEmail} />
-                </div>
-
-                <div className="form-group m-2">
-                    <label htmlFor="status">Status:</label>
-                    <input type="text" name="status" className="form-control mx-sm-3" placeholder={itemToEdit.status} />
-                </div>
-
-                <div className="form-group m-2">
-                    <label htmlFor="start">Start:</label>
-                    <input type="text" name="start.dateTime" className="form-control mx-sm-3" value={Moment(itemToEdit.startDateTime).format('Do MMM YYYY, h:mm:ss a')} />
-                    {/!*<DateTimePicker
-                        onChange={}
-                        value={itemToEdit.start.dateTime}
-                    />*!/}
-                </div>
-
-                <button type="submit" className="btn btn-primary m-2">Save</button>
-
-            </form>
-        );*/
 
         momentLocalizer();
 
@@ -394,10 +247,6 @@ class ToDoList extends React.Component {
                     </div>
 
                     <div className={rightColumnClass}>
-                       {/* {editForm}*/}
-
-                        {/*<EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} setRequestStatus={this.setRequestStatus} />*/}
-
                         <h2>{itemToEdit.label}</h2>
                         <EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} />
                     </div>
