@@ -1,6 +1,7 @@
-import fetch from 'isomorphic-fetch';
 import Layout from '../components/Layout';
 import ToDoList from '../components/ToDoList';
+
+import requestInitialProps from "../services/requestInitialProps";
 
 const Index = (props) =>(
     <Layout>
@@ -13,14 +14,14 @@ const Index = (props) =>(
 
 Index.getInitialProps =  async () => {
 
-    const res = await fetch('http://localhost:3000/api/v1/to-do-items');
-            //if (res.status >= 400) {
-            //    throw new Error("Bad response from server");
-            //}
+    let data = {};
+    try {
+        data = await requestInitialProps();
+    } catch (error){
+        data = {items: [{}], requestStatus: "error"}
+    }
 
-    const json = await res.json();
-
-    return { items: json.toDoItems }
+    return data;
 };
 
 export default Index;

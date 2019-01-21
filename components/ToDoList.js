@@ -5,6 +5,7 @@ import findIndex from "lodash.findindex";
 import cloneDeep  from "lodash.clonedeep";
 import update from 'immutability-helper';
 import classNames from "classnames";
+import PropTypes from "prop-types";
 import EditForm from "./EditForm";
 
 class ToDoList extends React.Component {
@@ -15,7 +16,7 @@ class ToDoList extends React.Component {
             items: this.props.items,
 
             editMode: false,
-            requestStatus: "",
+            requestStatus: this.props.requestStatus,
             itemToEdit: {
                 created: "",
                 id: "",
@@ -34,6 +35,15 @@ class ToDoList extends React.Component {
         }
 
     }
+
+    static propTypes = {
+        items: PropTypes.arrayOf(PropTypes.shape({
+            id:PropTypes.string,
+            itemTitle:PropTypes.string,
+            itemDate:PropTypes.string,
+            itemDetails:PropTypes.object
+        }))
+    };
 
     async loadItemDetails(id){
         //updating the state with ajax request status
@@ -206,7 +216,7 @@ class ToDoList extends React.Component {
             const details = !isEmpty(item.itemDetails);
 
             return (
-                <li className="list-group-item">
+                <li className="list-group-item" key={item.id}>
                     <span className="badge badge-primary">{Moment(item.itemDate).format('Do MMM YYYY, h:mm:ss a')}</span>
                     <div className="btn" onClick={() => this.loadItemDetails(item.id)}><strong>{item.itemTitle}</strong></div>
                     <button type="button" className="btn btn-danger float-right" onClick={() => this.deleteItem(item.id)}>Delete</button>

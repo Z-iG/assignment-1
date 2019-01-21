@@ -1,7 +1,8 @@
 import Moment from "moment";
 import isEmpty from "lodash.isempty";
-import validator from 'validator';
-import classnames from 'classnames';
+import validator from "validator";
+import classnames from "classnames";
+import PropTypes from "prop-types";
 
 //Validate client side form input.
 function validateInput(data) {
@@ -40,6 +41,16 @@ class EditForm extends React.Component {
             requestStatus: ""
         }
     }
+
+    static propTypes = {
+        itemToEdit: PropTypes.object.isRequired,
+        updateItemToEdit: PropTypes.func.isRequired
+    };
+
+
+    //PropTypes.shape({
+    //  summary:PropTypes.string,
+    // }).isRequired
 
     isValid() {
         const { errors, isValid } = validateInput(this.props.itemToEdit);
@@ -129,7 +140,7 @@ class EditForm extends React.Component {
                         type={type}
                         name={name}
                         className="form-control mx-sm-3"
-                        value={value}
+                        defaultValue={value}
                     />
                     {error && <span className="help-block">{error}</span>}
                 </div>

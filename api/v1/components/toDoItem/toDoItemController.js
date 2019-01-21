@@ -68,18 +68,18 @@ module.exports = {
                     calendarId: 'primary',
                     resource: event
                 });
-                console.log(gcRes.data); //todo
+                //console.log(gcRes.data); //todo
 
                 //todo what data do I have to have in a response?
                 res.status(201).end();
 
             } catch (error) {
-                console.log(error);
+                //console.log(error);
                 res.status(500).json({error: error})
             }
         }
 
-         // created: '2019-01-18T07:01:52.449Z',
+         // throw,
          // id: '',
          // updated: '2019-01-18T07:01:52.449Z',
          // summary: 'Send email to HR88',
