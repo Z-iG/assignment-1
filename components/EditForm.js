@@ -16,12 +16,12 @@ function validateInput(data) {
         errors.location = 'This field is required'
     }
 
-    if (validator.isISO8601(data.startDateTime)){
-        errors.startDateTime = 'This field must be a date in ISO8601 format'
+    if (!validator.isRFC3339(data.startDateTime)){
+        errors.startDateTime = 'This field must be a valid RFC 3339 date  in YYYY-MM-DD format'
     }
 
-    if (validator.isISO8601(data.endDateTime)){
-        errors.endDateTime = 'This field must be a date in ISO8601 format'
+    if (!validator.isRFC3339(data.endDateTime)){
+        errors.endDateTime = 'This field must be a valid RFC 3339 date in YYYY-MM-DD format'
     }
 
     return {
@@ -63,13 +63,12 @@ class EditForm extends React.Component {
     handleSubmit(e) {
 
         function checkStatus(response) {
-            if (response.status >= 200 && response.status < 300) {
-                //if(response.ok)
+            if(response.ok) {
                 return response
-
             } else {
-                let error = new Error(response.statusText);
-                error.response = response;
+                let error = new Error();
+
+                alert ("There was an error contacting Google Calendar service: : Error " + response.error.code + " , "  + response.errorMessage);
 
                 throw error
             }
@@ -99,8 +98,9 @@ class EditForm extends React.Component {
                 },
                 body: JSON.stringify(data)
             })
-                .then(checkStatus)
                 .then(parseJSON)
+                .then(checkStatus)
+
 
                 .then(function (data) {
 
@@ -109,13 +109,12 @@ class EditForm extends React.Component {
                         requestStatus: 'done'
                     }));
 
-                    console.log('request succeeded with JSON response', data)
+                    //console.log('request succeeded with JSON response', data)
                 }.bind(this))
 
                 //.then(this.props.viewMode())
 
                 .catch(function (error) {
-
                     this.props.viewMode();
 
                     //updating the state with ajax request status

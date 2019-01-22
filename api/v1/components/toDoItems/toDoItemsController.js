@@ -22,9 +22,9 @@ module.exports = {
                     calendarId: 'primary'
                 });
 
-                var respToDoItemsList = resp.data.items;
+                const respToDoItemsList = resp.data.items;
 
-                var limitedDataToDoItemsList = respToDoItemsList.map(obj => ({
+                let limitedDataToDoItemsList = respToDoItemsList.map(obj => ({
                         id: obj.id,
                         itemTitle: obj.summary,
                         itemDate: obj.start.dateTime,
@@ -34,14 +34,16 @@ module.exports = {
 
 
                 res.status(201).json({toDoItems: limitedDataToDoItemsList});
-            } catch (error){
+            } catch (err) {
+                const errorCode = err.response.data.error.code;
+                const errorMessage = err.response.data.error.message;
+                const error = err.response.data.error;
 
-                res.status(500).json({error: error})
-
+                res.status(errorCode).json({error: error, errorMessage: errorMessage})
             }
         }
 
-        getToDoItemsList();
+        return getToDoItemsList();
 
     }
 };

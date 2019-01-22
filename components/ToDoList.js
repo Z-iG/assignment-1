@@ -55,23 +55,30 @@ class ToDoList extends React.Component {
         try {
             const res = await fetch('/api/v1/to-do-item?id=' + id );
             const json = await res.json();
+            const status = await res.status;
 
-            const index = findIndex(this.state.items, { id: id});
 
-            if (index >= 0) {
-                const items = cloneDeep(this.state.items); //create a copy of state
+            if (res.ok){
+                const index = findIndex(this.state.items, { id: id});
 
-                items[index].itemDetails = json.itemDetails;
+                if (index >= 0) {
+                    const items = cloneDeep(this.state.items); //create a copy of state
 
-                //console.log(json.itemDetails);
-                //console.log(json.itemDetails.extendedProperties);
+                    items[index].itemDetails = json.itemDetails;
 
+                    //updating the state with ajax request status
+                    this.setState((state) => ({
+                        items: items,
+                        requestStatus: 'done'
+                    }));
+                }
+            } else {
                 //updating the state with ajax request status
                 this.setState((state) => ({
-                    items: items,
-                    requestStatus: 'done'
+                    requestStatus: 'error'
                 }));
 
+                alert ("There was an error contacting Google Calendar service: : Error " + status + " , "  + json.errorMessage);
             }
 
         } catch (error) {
@@ -80,7 +87,7 @@ class ToDoList extends React.Component {
                 requestStatus: 'error'
             }));
 
-            console.error(error);
+            //console.error(error);
         }
     }
 
@@ -97,31 +104,29 @@ class ToDoList extends React.Component {
             });
 
             const json = await res.json();
+            const status = await res.status;
 
-            console.log(json);
+            if (status.ok){
+                //updating the state with ajax request status
+                this.setState((state) => ({
+                    items: items,
+                    requestStatus: 'done'
+                 }));
+            } else {
+                //updating the state with ajax request status
+                this.setState((state) => ({
+                    requestStatus: 'error'
+                }));
 
-            /*const res = await fetch('/api/v1/to-do-item', {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: id})
-            });
-
-            const json = await res.json();
-
-            console.log(json);*/
-
-            //updating the state with ajax request status
-            this.setState((state) => ({
-                items: items,
-                requestStatus: 'done'
-            }));
+                alert ("There was an error contacting Google Calendar service: : Error " + status + " , "  + json.errorMessage);
+            }
 
         } catch (error) {
             //updating the state with ajax request status
             this.setState((state) => ({
                 requestStatus: 'error'
             }));
-            console.error(error);
+
         }
     }
 
