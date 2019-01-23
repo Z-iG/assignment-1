@@ -2,6 +2,7 @@ import Moment from "moment";
 import isEmpty from "lodash.isempty";
 import validator from "validator";
 import classnames from "classnames";
+import fetch from 'isomorphic-fetch';
 import PropTypes from "prop-types";
 
 //Validate client side form input.
@@ -43,14 +44,20 @@ class EditForm extends React.Component {
     }
 
     static propTypes = {
-        itemToEdit: PropTypes.object.isRequired,
+        itemToEdit: PropTypes.shape({
+            created: PropTypes.string,
+            id: PropTypes.string,
+            updated: PropTypes.string,
+            summary: PropTypes.string,
+            location: PropTypes.string,
+            startDateTime: PropTypes.string,
+            endDateTime: PropTypes.string,
+            requestStatus: PropTypes.string,
+            label: PropTypes.string,
+            newItem: PropTypes.bool
+        }).isRequired,
         updateItemToEdit: PropTypes.func.isRequired
     };
-
-
-    //PropTypes.shape({
-    //  summary:PropTypes.string,
-    // }).isRequired
 
     isValid() {
         const { errors, isValid } = validateInput(this.props.itemToEdit);
@@ -102,14 +109,14 @@ class EditForm extends React.Component {
                 .then(checkStatus)
 
 
-                .then(function (data) {
+                .then(function () {
 
                     //updating the state with ajax request status
                     this.setState((prevState) => ({
                         requestStatus: 'done'
                     }));
 
-                    //console.log('request succeeded with JSON response', data)
+
                 }.bind(this))
 
                 //.then(this.props.viewMode())
@@ -131,7 +138,7 @@ class EditForm extends React.Component {
         const updateItemToEdit = this.props.updateItemToEdit;
         const { errors } = this.state;
 
-        const InputFieldGroup = ({ name, value, label, error, type }) => {
+        const InputFieldGroup = ({ name, value, label, error, type, rerender }) => {
             return (
                 <div className={classnames('form-group m-2', { 'is-invalid"': error })}>
                     <label htmlFor={name}>{label}</label>
@@ -140,6 +147,7 @@ class EditForm extends React.Component {
                         name={name}
                         className="form-control mx-sm-3"
                         defaultValue={value}
+                        onChange={rerender}
                     />
                     {error && <span className="help-block">{error}</span>}
                 </div>
@@ -151,35 +159,39 @@ class EditForm extends React.Component {
         };
 
         return(
-            <form onSubmit={this.handleSubmit} onChange={updateItemToEdit} className="form-inline">
+            <form onSubmit={(e) => this.handleSubmit(e)} className="form-inline">
 
-                <InputFieldGroup
-                    name="summary"
-                    label="Summary:"
-                    value={itemToEdit.summary}
-                    error={errors.summary}
-                />
+                {InputFieldGroup({
+                    name: "summary",
+                    label: "Summary:",
+                    value: itemToEdit.summary,
+                    error: errors.summary,
+                    rerender: updateItemToEdit }
+                    )}
 
-                <InputFieldGroup
-                    name="location"
-                    label="Location:"
-                    value={itemToEdit.location}
-                    error={errors.location}
-                />
+                {InputFieldGroup({
+                    name: "location",
+                    label: "Location:",
+                    value: itemToEdit.location,
+                    error: errors.location,
+                    rerender: updateItemToEdit }
+                )}
 
-                <InputFieldGroup
-                    name="startDateTime"
-                    label="Start:"
-                    value={itemToEdit.startDateTime}
-                    error={errors.startDateTime}
-                />
+                {InputFieldGroup({
+                    name: "startDateTime",
+                    label: "Start:",
+                    value: itemToEdit.startDateTime,
+                    error: errors.startDateTime,
+                    rerender: updateItemToEdit }
+                )}
 
-                <InputFieldGroup
-                    name="endDateTime"
-                    label="End:"
-                    value={itemToEdit.endDateTime}
-                    error={errors.endDateTime}
-                />
+                {InputFieldGroup({
+                    name: "endDateTime",
+                    label: "End:",
+                    value: itemToEdit.endDateTime,
+                    error: errors.endDateTime,
+                    rerender: updateItemToEdit }
+                )}
 
                 <div className="form-group m-2">
                     <label htmlFor="created">Creation date:</label>

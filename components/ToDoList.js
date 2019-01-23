@@ -6,6 +6,7 @@ import cloneDeep  from "lodash.clonedeep";
 import update from 'immutability-helper';
 import classNames from "classnames";
 import PropTypes from "prop-types";
+import fetch from 'isomorphic-fetch';
 import EditForm from "./EditForm";
 
 class ToDoList extends React.Component {
@@ -22,12 +23,9 @@ class ToDoList extends React.Component {
                 id: "",
                 updated: "",
                 summary: "",
-
                 location: "",
-
                 startDateTime: "",
                 endDateTime: "",
-
                 requestStatus: "",
                 label: "",
                 newItem: false
@@ -99,7 +97,7 @@ class ToDoList extends React.Component {
         }));
 
         try {
-            const res = await fetch('/api/v1/to-do-item/' +id, {
+            const res = await fetch('/api/v1/to-do-item/' + id, {
                 method: 'DELETE'
             });
 
@@ -107,11 +105,20 @@ class ToDoList extends React.Component {
             const status = await res.status;
 
             if (status.ok){
-                //updating the state with ajax request status
-                this.setState((state) => ({
-                    items: items,
-                    requestStatus: 'done'
-                 }));
+
+                const index = findIndex(this.state.items, { id: id});
+
+                if (index >= 0) {
+                    let items = cloneDeep(this.state.items); //create a copy of state
+                    items.splice(index, 1);
+
+                    //updating the state with ajax request status
+                    this.setState((state) => ({
+                        items: items,
+                        requestStatus: 'done'
+                    }));
+                }
+
             } else {
                 //updating the state with ajax request status
                 this.setState((state) => ({
@@ -166,11 +173,9 @@ class ToDoList extends React.Component {
                 id: "",
                 updated: d.toISOString(),
                 summary: "",
-
+                location: "",
                 startDateTime: d.toISOString(),
                 endDateTime: d.toISOString(),
-
-
                 requestStatus: "",
                 label: "Create new todo item",
                 newItem: true
