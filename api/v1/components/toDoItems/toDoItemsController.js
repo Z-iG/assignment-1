@@ -5,21 +5,23 @@ module.exports = {
         const config = require('config');
         const {google} = require('googleapis');
         const calendar = google.calendar('v3');
-        let oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id,
-            config.googleAuthOAuth2.client_secret
+        const privatekey = require("../../privatekey.json"); //service account private key
+
+        //configure a JWT auth client
+        let jwtClient = new google.auth.JWT(
+            privatekey.client_email,
+            null,
+            privatekey.private_key,
+            config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
         );
-        oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token
-            // access_token: "#####" // If you want to use access token, please use this.
-        });
 
         async function getToDoItemsList() {
 
             try {
+                //Google calendar API
                 const resp = await calendar.events.list({
-                    auth: oauth2Client,
-                    calendarId: 'primary'
+                    auth: jwtClient,
+                    calendarId: config.google_calendar_id //'zig.m800@gmail.com'
                 });
 
                 const respToDoItemsList = resp.data.items;
@@ -31,7 +33,6 @@ module.exports = {
                         itemDetails: {}
                     })
                 );
-
 
                 res.status(201).json({toDoItems: limitedDataToDoItemsList});
             } catch (err) {

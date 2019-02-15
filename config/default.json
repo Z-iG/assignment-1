@@ -1,7 +1,25 @@
 {
   "googleAuthOAuth2": {
-    "client_id": "1043071528710-n2phgsri3kv404jk2gbidq7td9pfms3p.apps.googleusercontent.com",
-    "client_secret": "ijrtYotMhRLC65l3w54nEkgi",
-    "refresh_token": "1/9NGvFU4dWPwlf0QuQ_7eSnmbLntUEHz1uooRFbSGX84"
-  }
+     "client_id": "1043071528710-m44mal00j93s4goj7atfgkq3mkr27212.apps.googleusercontent.com",
+     "client_secret": "pIYJszXNdCQVfSLToHzkOHnF",
+     "refresh_token": "1/68JkapBZ43E7JVUrT6FOVJQMahbB7h8Grm3ReIXWhuk",
+     "access_token": "ya29.GluwBt17YAn1WhuMZn0SJeVSWB_3Pk6zpQ_mL15_xeAJ8wlcdb_7mu9oXRNWX9oXJc5k9gbNCVHYCZAlEdgUN2K77hNusKpBhcm5_FFQ8QZqyc8AzKHvAiapAshT"
+  },
+
+  "scope_google_api": ["https://www.googleapis.com/auth/calendar.events"],
+  "google_calendar_id": "zig.m800@gmail.com"
 }
+
+// OLD works fine
+// "client_id": "1043071528710-n2phgsri3kv404jk2gbidq7td9pfms3p.apps.googleusercontent.com",
+// "client_secret": "ijrtYotMhRLC65l3w54nEkgi",
+// "refresh_token": "1/9NGvFU4dWPwlf0QuQ_7eSnmbLntUEHz1uooRFbSGX84"
+
+
+
+//"client_id": "1043071528710-m44mal00j93s4goj7atfgkq3mkr27212.apps.googleusercontent.com",
+//"client_secret": "pIYJszXNdCQVfSLToHzkOHnF",
+//"refresh_token": ""
+
+
+//"refresh_token": "1/68JkapBZ43E7JVUrT6FOVJQMahbB7h8Grm3ReIXWhuk",

@@ -5,6 +5,9 @@ import classnames from "classnames";
 import fetch from 'isomorphic-fetch';
 import PropTypes from "prop-types";
 
+
+// import requestInitialProps from "../services/requestInitialProps";
+
 //Validate client side form input.
 function validateInput(data) {
     let errors = {};
@@ -108,16 +111,26 @@ class EditForm extends React.Component {
                 .then(parseJSON)
                 .then(checkStatus)
 
-
                 .then(function () {
-
                     //updating the state with ajax request status
                     this.setState((prevState) => ({
                         requestStatus: 'done'
                     }));
 
-
                 }.bind(this))
+
+                //update a list of items here
+                /*.then (function(){
+                    let data = {};
+                    try {
+                        data = await requestInitialProps();
+                    } catch (error){
+                        data = {items: [{}], requestStatus: "error"}
+                    }
+                    //return data;
+
+                    console.log(data);
+                }.bind(this))*/
 
                 //.then(this.props.viewMode())
 

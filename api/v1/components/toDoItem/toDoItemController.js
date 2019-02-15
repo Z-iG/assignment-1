@@ -5,26 +5,37 @@ module.exports = {
         const config = require('config');
         const {google} = require('googleapis');
         const calendar = google.calendar('v3');
-        let oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id,
-            config.googleAuthOAuth2.client_secret
+
+        const privatekey = require("../../privatekey.json");
+
+        //configure a JWT auth client
+        let jwtClient = new google.auth.JWT(
+            privatekey.client_email,
+            null,
+            privatekey.private_key,
+            config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
         );
-        oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token
-            // access_token: "#####" // If you want to use access token, please use this.
-        });
+
+
+
+
 
         async function getToDoItemDetails(eventId) {
             try {
+                //Google calendar API
                 let gcRes = await calendar.events.get({
-                    auth: oauth2Client,
-                    calendarId: 'primary',
+                    auth: jwtClient,
+                    calendarId: config.google_calendar_id, //'zig.m800@gmail.com'
                     eventId: eventId
                 });
 
                 res.status(201).json({itemDetails: gcRes.data});
 
             } catch (err) {
+
+
+                console.log(err);
+
                 const errorCode = err.response.data.error.code;
                 const errorMessage = err.response.data.error.message;
                 const error = err.response.data.error;
@@ -43,20 +54,31 @@ module.exports = {
         const config = require('config');
         const {google} = require('googleapis');
         const calendar = google.calendar('v3');
-        let oauth2Client = new google.auth.OAuth2(
+
+        const privatekey = require("../../privatekey.json");
+
+        //configure a JWT auth client
+        let jwtClient = new google.auth.JWT(
+            privatekey.client_email,
+            null,
+            privatekey.private_key,
+            config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
+        );
+
+        /*let oauth2Client = new google.auth.OAuth2(
             config.googleAuthOAuth2.client_id,
             config.googleAuthOAuth2.client_secret
         );
         oauth2Client.setCredentials({
             refresh_token: config.googleAuthOAuth2.refresh_token
             // access_token: "#####" // If you want to use access token, please use this.
-        });
+        });*/
 
         async function deleteToDoItem(eventId) {
             try {
                 let gcRes = await calendar.events.delete({
-                    auth: oauth2Client,
-                    calendarId: 'primary',
+                    auth: jwtClient,
+                    calendarId: config.google_calendar_id, //'zig.m800@gmail.com'
                     eventId: eventId
                 });
 
@@ -78,25 +100,27 @@ module.exports = {
 
     to_do_item_create: function(req, res){
 
-
         var validator = require('validator');
         var isEmpty = require('lodash.isempty');
         var config = require('config');
         var {google} = require('googleapis');
         var calendar = google.calendar('v3');
-        var oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id,
-            config.googleAuthOAuth2.client_secret
+
+        const privatekey = require("../../privatekey.json");
+
+        //configure a JWT auth client
+        let jwtClient = new google.auth.JWT(
+            privatekey.client_email,
+            null,
+            privatekey.private_key,
+            config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
         );
-        oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token
-        });
 
         async function createToDoItem(event) {
             try {
                 const gcRes = await calendar.events.insert({
-                    auth: oauth2Client,
-                    calendarId: 'primary',
+                    auth: jwtClient,
+                    calendarId: config.google_calendar_id, //'zig.m800@gmail.com'
                     resource: event
                 });
 
@@ -187,19 +211,21 @@ module.exports = {
         var config = require('config');
         var {google} = require('googleapis');
         var calendar = google.calendar('v3');
-        var oauth2Client = new google.auth.OAuth2(
-            config.googleAuthOAuth2.client_id,
-            config.googleAuthOAuth2.client_secret
+        const privatekey = require("../../privatekey.json");
+
+        //configure a JWT auth client
+        let jwtClient = new google.auth.JWT(
+            privatekey.client_email,
+            null,
+            privatekey.private_key,
+            config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
         );
-        oauth2Client.setCredentials({
-            refresh_token: config.googleAuthOAuth2.refresh_token
-        });
 
         async function updateToDoItem(eventId, event) {
             try {
                 const gcRes = await calendar.events.update({
-                    auth: oauth2Client,
-                    calendarId: 'primary',
+                    auth: jwtClient,
+                    calendarId: config.google_calendar_id, //'zig.m800@gmail.com'
                     eventId: eventId,
                     resource: event
                 });
@@ -238,7 +264,7 @@ module.exports = {
                 'timeZone': 'Asia/Hong_Kong',
             },
             'recurrence': [
-                'RRULE:FREQ=DAILY;COUNT=2'
+                'RRULE:FREQ=DAILY;COUNT=1'
             ],
             'attendees': [
                 {'email': 'm800me1@example.com'},
