@@ -53,10 +53,9 @@ class ToDoList extends React.Component {
         try {
             const res = await fetch('/api/v1/to-do-item?id=' + id );
             const json = await res.json();
-            const status = await res.status;
-
 
             if (res.ok){
+
                 const index = findIndex(this.state.items, { id: id});
 
                 if (index >= 0) {
@@ -76,6 +75,8 @@ class ToDoList extends React.Component {
                     requestStatus: 'error'
                 }));
 
+                const status = res.status;
+
                 alert ("There was an error contacting Google Calendar service: : Error " + status + " , "  + json.errorMessage);
             }
 
@@ -85,7 +86,6 @@ class ToDoList extends React.Component {
                 requestStatus: 'error'
             }));
 
-            //console.error(error);
         }
     }
 
@@ -97,20 +97,18 @@ class ToDoList extends React.Component {
         }));
 
         try {
-            const res = await fetch('/api/v1/to-do-item/' + id, {
+            let response = await fetch('/api/v1/to-do-item/' + id, {
                 method: 'DELETE'
             });
 
-            const json = await res.json();
-            const status = await res.status;
-
-            if (status.ok){
+            if (response.ok){
 
                 const index = findIndex(this.state.items, { id: id});
 
                 if (index >= 0) {
                     let items = cloneDeep(this.state.items); //create a copy of state
                     items.splice(index, 1);
+
 
                     //updating the state with ajax request status
                     this.setState((state) => ({
@@ -125,6 +123,9 @@ class ToDoList extends React.Component {
                     requestStatus: 'error'
                 }));
 
+                const status = response.status;
+                const json = response.json();
+
                 alert ("There was an error contacting Google Calendar service: : Error " + status + " , "  + json.errorMessage);
             }
 
@@ -135,6 +136,51 @@ class ToDoList extends React.Component {
             }));
 
         }
+    }
+
+
+    async updateItemsList(){
+
+        //updating the state with ajax request status
+        this.setState((state) => ({
+            requestStatus: 'requesting'
+        }));
+
+        try {
+            const res = await fetch('http://localhost:3000/api/v1/to-do-items');
+            const json = await res.json();
+
+            if (res.ok){
+
+                const items = json.toDoItems;
+
+                //updating the state with ajax request status
+                this.setState((state) => ({
+                    items: items,
+                    requestStatus: 'done'
+                }));
+
+
+            } else {
+                //updating the state with ajax request status
+                this.setState((state) => ({
+                    requestStatus: 'error'
+                }));
+
+                const status = res.status;
+
+                alert ("There was an error contacting Google Calendar service: : Error " + status + " , "  + json.errorMessage);
+            }
+
+        } catch (error) {
+
+            //updating the state with ajax request status
+            this.setState((state) => ({
+                requestStatus: 'error'
+            }));
+
+        }
+
     }
 
 
@@ -268,7 +314,7 @@ class ToDoList extends React.Component {
 
                     <div className={rightColumnClass}>
                         <h2>{itemToEdit.label}</h2>
-                        <EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} />
+                        <EditForm viewMode={this.switchToShowMode.bind(this)} itemToEdit={itemToEdit} updateItemToEdit={this.updateItemToEdit} updateItemsList={this.updateItemsList.bind(this)}/>
                     </div>
 
                 </div>

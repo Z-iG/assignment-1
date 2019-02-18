@@ -16,10 +16,6 @@ module.exports = {
             config.scope_google_api //['https://www.googleapis.com/auth/calendar.events']
         );
 
-
-
-
-
         async function getToDoItemDetails(eventId) {
             try {
                 //Google calendar API
@@ -313,7 +309,7 @@ module.exports = {
         if (isValid){
             return updateToDoItem(eventId, event);
         } else {
-            return res.status(400).json({error: errors, errorMessage: "Invalid input parameters"});
+            return res.status(401).json({error: errors, errorMessage: "Invalid input parameters"});
         }
     }
 

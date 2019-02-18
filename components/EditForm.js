@@ -5,9 +5,6 @@ import classnames from "classnames";
 import fetch from 'isomorphic-fetch';
 import PropTypes from "prop-types";
 
-
-// import requestInitialProps from "../services/requestInitialProps";
-
 //Validate client side form input.
 function validateInput(data) {
     let errors = {};
@@ -59,7 +56,9 @@ class EditForm extends React.Component {
             label: PropTypes.string,
             newItem: PropTypes.bool
         }).isRequired,
-        updateItemToEdit: PropTypes.func.isRequired
+        updateItemToEdit: PropTypes.func.isRequired,
+        updateItemsList: PropTypes.func.isRequired,
+        viewMode: PropTypes.func.isRequired
     };
 
     isValid() {
@@ -74,18 +73,24 @@ class EditForm extends React.Component {
 
         function checkStatus(response) {
             if(response.ok) {
+
                 return response
             } else {
                 let error = new Error();
 
-                alert ("There was an error contacting Google Calendar service: : Error " + response.error.code + " , "  + response.errorMessage);
+                //alert ("There was an error contacting Google Calendar service: : Error " + response.error.code + " , "  + response.errorMessage);
+
+
+
+
+                console.log(response);
+                console.log(response.errorMessage);
+
+
+
 
                 throw error
             }
-        }
-
-        function parseJSON(response) {
-            return response.json()
         }
 
         e.preventDefault();
@@ -101,41 +106,32 @@ class EditForm extends React.Component {
             let method ="PUT";
             if (data.newItem) {method = "POST"}
 
-            fetch('http://localhost:3000/api/v1/to-do-item', {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-                .then(parseJSON)
-                .then(checkStatus)
+                fetch('http://localhost:3000/api/v1/to-do-item', {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
 
-                .then(function () {
+                .then ((res) => {
+
+                    checkStatus(res);
+
                     //updating the state with ajax request status
-                    this.setState((prevState) => ({
-                        requestStatus: 'done'
+                    this.setState(() => ({
+                        requestStatus: "done"
                     }));
 
-                }.bind(this))
+                    this.props.viewMode();
+                    this.props.updateItemsList()
 
-                //update a list of items here
-                /*.then (function(){
-                    let data = {};
-                    try {
-                        data = await requestInitialProps();
-                    } catch (error){
-                        data = {items: [{}], requestStatus: "error"}
-                    }
-                    //return data;
-
-                    console.log(data);
-                }.bind(this))*/
-
-                //.then(this.props.viewMode())
+                } )
 
                 .catch(function (error) {
                     this.props.viewMode();
+
+                    console.log(error);
 
                     //updating the state with ajax request status
                     this.setState(() => ({
@@ -222,8 +218,6 @@ class EditForm extends React.Component {
         )
 
     }
-
-
 
 }
 
